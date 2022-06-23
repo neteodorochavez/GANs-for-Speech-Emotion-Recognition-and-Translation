@@ -7,11 +7,11 @@
 
 Table of Contents:<br>
 1. [Deep Learning Goal](#goal)<br>
-1. [Data](#data)<br>
-2. [Preprocessing Techniques](#techniques)<br>
-3. [Model Architecture](#model)<br>
-4. [Model Results](#results)<br>
-5. [Next Steps](#next)<br>
+2. [Data](#data)<br>
+3. [Preprocessing Techniques](#techniques)<br>
+4. [Model Architecture](#model)<br>
+5. [Model Results](#results)<br>
+6. [Next Steps](#next)<br>
 
 ## <a name="goal">Deep Learning Goal </a>
 
