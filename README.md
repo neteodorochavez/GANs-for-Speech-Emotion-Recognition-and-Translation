@@ -2,52 +2,27 @@
 
 **By**: Nestor Teodoro Chavez and Charudatta Manwatkar
 
-## Motivation
-Insert Here
 
-## The Description
+## Introduction
 
 Here, we will explain the significance:<br>
-1. [Importing the Data](#import)<br>
-2. [Data Exploration](#explore)<br>
-3. [Data Preprocessing](#preprocess)<br>
-4. [Model Predictions](#model)<br>
-5. [Model Performance](#metrics)<br>
+1. [Data](#data)<br>
+2. [Preprocessing Techniques](#techniques)<br>
+3. [Model Architecture](#model)<br>
+4. [Model Results](#results)<br>
+5. [Next Steps](#next)<br>
 
-## Getting Started 
+## Deep Learning Goal 
 
-Update This: 
-Download the [example.ipynb](https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/example.ipynb). Next, download the [data](https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/tree/main/data). If you'd like to use other datasets, make sure to add them to the data folder. The file types of choice have a wide range.
+## <a name="data">Section 1: Data</a> 
 
-## Installation
+## <a name="techniques">Section 2: Techniques & Preprocessing</a> 
 
-```
-pip install --upgrade pip
-pip install pandas
-pip install numpy
-pip install matplotlib
-```
+## <a name="model">Section 3: Model Architecture</a>
 
-## Our Process
+## <a name="results">Section 4: Results </a>
 
-### <a name="import">Section 1: Importing Data</a> 
-
-### <a name="explore">Section 2: Data Exploration</a> 
-
-### <a name="preprocess">Section 3: Preprocessing</a>
-
-### <a name="model">Section 4: Model Architecture</a>
-
-### <a name="metrics">Section 4: Model Performance</a>
-
-#### Subsection 1
-
-#### Subsection 2  
-
-#### Subsection 3
-
-
-### Research Questions 
+## <a name="next">Section 5: Next Steps</a>
 
 ### Next Steps 
 Now... 
