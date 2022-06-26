@@ -17,7 +17,7 @@ Table of Contents:<br>
 Our Deep Learning Goal is to leverage General Adversarial Networks in order to recognize the type of emotion from audio files. Our ultimate goal is to modify original audio source in order to generate a new audio file that has been translated to a different emotion. 
 
 ## <a name="data">Dataset</a> 
-We are using RAVDESS dataset. The dataset consists of 24 voice actors. These voice actors provide audio in the form of .wav for various sentences and 8 emotions. The emotions we work with are Neutral, Calm, Happy, Sad, Angry, Fear, Disgust, and Surprise. 
+We are using [RAVDESS dataset](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio). The dataset consists of 24 voice actors. These voice actors provide audio in the form of .wav for various sentences and 8 emotions. The emotions we work with are Neutral, Calm, Happy, Sad, Angry, Fear, Disgust, and Surprise. 
 
 ## <a name="techniques">Techniques & Preprocessing</a> 
 We preprocess our audio files by using Acoustic Feature Extraction. 
