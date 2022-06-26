@@ -22,12 +22,12 @@ We are using [RAVDESS dataset](https://www.kaggle.com/datasets/uwrfkaggler/ravde
 ## <a name="techniques">Techniques & Preprocessing</a> 
 We preprocess our audio files by using Acoustic Feature Extraction. 
 <p float="left">
-  <img src="SampleImages/audio_ex.png" width="300"/>
+  <img src="SampleImages/audio_ex.png" width="1200"/>
 </p>
   
 Here, we generate images in the form of a Mel Spectrogram. 
 <p float="left">
-  <img src="SampleImages/melSpec_ex.png" width="300"/>
+  <img src="SampleImages/melSpec_ex.png" width="1200"/>
 </p>
 
 We then normalize these images. 
