@@ -44,7 +44,7 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 [Gneral Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network)
 
 <p float="left">
-  <img src="SampleImages/GAN.drawio.png" width="800"/>
+  <img src="SampleImages/GAN.png" width="800"/>
 </p>
   
 ## <a name="results">Model Performance</a>
