@@ -25,9 +25,14 @@ We preprocess our audio files by using Acoustic Feature Extraction.
   <img src="SampleImages/audio_ex.png" width="1200"/>
 </p>
   
-Here, we generate images in the form of a Mel Spectrogram. 
+Here, we generate images in the form of a Mel Spectrogram. This is a plot of all emotions presented in the RAVDESS dataset. One can note, the mel spectrogram of emotions are all quite similar as the sentence the voice actor is stating is the same but in various varying emotions.  
 <p float="left">
-  <img src="SampleImages/melSpec_ex.png" width="1200"/>
+  <img src="SampleImages/sample_all_emotions.png" width="1200"/>
+</p>
+
+We can get a better sense of the dataset by looking at one more sample. Here, the mel spectrograms are different because the sentence and voice actor are different. 
+<p float="left">
+  <img src="SampleImages/sample_all_emotions_2.png" width="1200"/>
 </p>
 
 We then normalize these images. 
