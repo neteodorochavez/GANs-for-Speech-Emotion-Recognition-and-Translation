@@ -42,6 +42,10 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 
 ## <a name="model">Model Architecture</a>
 [Gneral Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network)
+
+<p float="left">
+  <img src="SampleImages/Generator_Model.png" width="1200"/>
+</p>
   
 ## <a name="results">Model Performance</a>
 -- insert chart of training/validation --  
