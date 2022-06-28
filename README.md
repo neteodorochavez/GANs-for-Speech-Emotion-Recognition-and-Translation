@@ -30,11 +30,22 @@ Here, we generate images in the form of a Mel Spectrogram.
   <img src="SampleImages/melSpec_ex.png" width="1200"/>
 </p>
 
-We then normalize these images. 
--- insert normalized image -- 
-  
+We then normalize these images. This is a plot of all emotions presented in the RAVDESS dataset that have been normalized. One can note, the mel spectrogram of emotions are all quite similar as the sentence the voice actor is stating is the same but in various varying emotions.  
+<p float="left">
+  <img src="SampleImages/sample_all_emotions.png" width="1200"/>
+</p>
+
+We can get a better sense of the dataset by looking at one more sample. Here, the mel spectrograms are different because the sentence and voice actor are different. 
+<p float="left">
+  <img src="SampleImages/sample_all_emotions_2.png" width="1200"/>
+</p>  
+
 ## <a name="model">Model Architecture</a>
 [Gneral Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network)
+
+<p float="left">
+  <img src="SampleImages/GAN.png" width="800"/>
+</p>
   
 ## <a name="results">Model Performance</a>
 -- insert chart of training/validation --  
