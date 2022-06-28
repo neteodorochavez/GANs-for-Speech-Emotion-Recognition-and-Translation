@@ -37,14 +37,14 @@ We then normalize these images. This is a plot of all emotions presented in the 
 
 We can get a better sense of the dataset by looking at one more sample. Here, the mel spectrograms are different because the sentence and voice actor are different. 
 <p float="left">
-  <img src="SampleImages/sample_all_emotions_2.png" width="600"/>
+  <img src="SampleImages/sample_all_emotions_2.png" width="1200"/>
 </p>  
 
 ## <a name="model">Model Architecture</a>
 [Gneral Adversarial Network](https://en.wikipedia.org/wiki/Generative_adversarial_network)
 
 <p float="left">
-  <img src="SampleImages/Generator_Model.png" width="1200"/>
+  <img src="SampleImages/Generator_Model.png" width="800"/>
 </p>
   
 ## <a name="results">Model Performance</a>
