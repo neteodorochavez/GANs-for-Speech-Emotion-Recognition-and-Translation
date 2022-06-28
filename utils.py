@@ -1,7 +1,10 @@
+from syslog import LOG_SYSLOG
 import torch
 import torch.nn as nn 
 import torch.nn.functional as F 
-from torch.utils.data import Dataset, DataLoader 
+from torch.utils.data import Dataset, DataLoader
+import torch.optim as optim
+
 
 import os 
 import numpy as np 
@@ -78,7 +81,7 @@ class EmotionDataset(Dataset):
                 
         images = torch.from_numpy(np.array(imgs))
         
-        print(i)
+        # print(i)
         return images[i].unsqueeze(0), images
     
 class Generator(nn.Module):
@@ -165,58 +168,267 @@ def plot_loss(G_losses, D_losses):
     plt.legend()
     plt.show()
     
-def train(data_loader, generator_model, discriminator_model, num_epochs, ep):
-    real_label = ''
-    img_list = []
-    G_losses = []
-    D_losses = []
-    iters = 0
-    print("Starting Training Loop...")
+# def train(data_loader, generator_model, discriminator_model, num_epochs, ep):
+#     real_label = ''
+#     img_list = []
+#     G_losses = []
+#     D_losses = []
+#     iters = 0
+#     print("Starting Training Loop...")
+#     for epoch in range(num_epochs):
+#         for i, data in enumerate(data_loader, 0):
+
+#             discriminator_model.zero_grad()
+#             real_cpu = data[0].to(device)
+#             b_size = real_cpu.size(0)
+#             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
+#             output = discriminator_model(real_cpu).view(-1)
+#             errD_real = criterion(output, label)
+#             errD_real.backward()
+#             D_x = output.mean().item()
+
+#             noise = torch.randn(b_size, nz, 1, 1, device=device)
+#             fake = generator_model(noise)
+#             label.fill_(fake_label)
+#             output = discriminator_model(fake.detach()).view(-1)
+#             errD_fake = criterion(output, label)
+#             errD_fake.backward()
+#             D_G_z1 = output.mean().item()
+#             errD = errD_real + errD_fake
+#             optimizerD.step()
+
+
+#             generator_model.zero_grad()
+#             label.fill_(real_label)  
+#             output = discriminator_model(fake).view(-1)
+#             errG = criterion(output, label)
+#             errG.backward()
+#             D_G_z2 = output.mean().item()
+#             optimizerG.step()
+
+#             if i % 50 == 0:
+#                 print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
+#                       % (epoch, num_epochs, i, len(dataloader),
+#                          errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
+
+#             G_losses.append(errG.item())
+#             D_losses.append(errD.item())
+
+#             if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
+#                 with torch.no_grad():
+#                     fake = (fixed_noise).detach().cpu()
+#                 img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
+#                 torch.save(generator_model.state_dict(), f'model_weights/gen_{ep}.data')
+#                 torch.save(discriminator_model.state_dict(), f'model_weights/dis_{ep}.data')
+
+#             iters += 1
+#     return img_list, G_losses, D_losses
+
+
+class ConvBlock(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        f_size = 7
+        padding = (f_size//2, f_size//2)
+        self.relu = nn.ReLU()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, f_size, padding=padding)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.conv2 = nn.Conv2d(out_channels, out_channels, f_size, padding=padding)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        
+        x = self.conv2(x)
+        x = self.bn2(x)
+        x = self.relu(x)
+        return x
+
+class UNet(nn.Module):
+    
+    def __init__(self):
+        super().__init__()
+        # pooling
+        self.pool = nn.MaxPool2d(2,2)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        
+        # ENCODER
+        self.conv00 = ConvBlock(1, 32)
+        self.conv10 = ConvBlock(32, 64)
+        self.conv20 = ConvBlock(64, 128)
+        self.conv30 = ConvBlock(128, 256)
+        self.conv40 = ConvBlock(256, 512)
+        
+        # DECODER
+        self.upconv31 = nn.ConvTranspose2d(512, 256, 3, stride=2, padding=1, output_padding=1)
+        self.conv31 = ConvBlock(2*256, 256)
+        self.upconv22 = nn.ConvTranspose2d(256, 128, 3, stride=2, padding=1, output_padding=1)
+        self.conv22 = ConvBlock(2*128, 128)
+        self.upconv13 = nn.ConvTranspose2d(128, 64, 3, stride=2, padding=1, output_padding=1)
+        self.conv13 = ConvBlock(2*64, 64)
+        self.upconv04 = nn.ConvTranspose2d(64, 32, 3, stride=2, padding=1, output_padding=1)
+        self.conv04 = ConvBlock(2*32, 32)
+        
+        # final layers
+        self.final04 = nn.Conv2d(32, 8, 1)
+        
+    def forward(self, x):
+        
+        # Encoder Path
+        x00 = self.conv00(x)
+        x10 = self.conv10(self.pool(x00))
+        x20 = self.conv20(self.pool(x10))
+        x30 = self.conv30(self.pool(x20))
+        x40 = self.conv40(self.pool(x30))
+        
+        
+        # Up-sampling 
+        x31 = self.upconv31(x40)
+        x31 = self.conv31(torch.cat((x30,x31), dim=1))
+        x22 = self.upconv22(x31)
+        x22 = self.conv22(torch.cat((x20,x22),dim=1))
+        x13 = self.upconv13(x22)
+        x13 = self.conv13(torch.cat((x10,x13),dim=1))
+        x04 = self.upconv04(x13)
+        x04 = self.conv04(torch.cat((x00,x04),dim=1))
+        
+        # Outputs
+        x04 = self.final04(x04)
+
+        
+        return x04
+
+class NLayerDiscriminator(nn.Module):
+    """
+    This class was inspired from 
+    https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix/
+    Defines a PatchGAN discriminator
+    """
+
+    def __init__(self, input_nc=8, ndf=64, n_layers=4):
+        """Construct a PatchGAN discriminator
+        Parameters:
+            input_nc (int)  -- the number of channels in input images
+            ndf (int)       -- the number of filters in the last conv layer
+            n_layers (int)  -- the number of conv layers in the discriminator
+            norm_layer      -- normalization layer
+        """
+        super().__init__()
+
+        f_size = 4
+        padding = 1
+        sequence = [nn.Conv2d(input_nc, ndf, kernel_size=f_size,
+                              stride=2, padding=padding),
+                    nn.LeakyReLU(0.2, True)]
+        nf_mult = 1
+        nf_mult_prev = 1
+        for n in range(1, n_layers):
+            nf_mult_prev = nf_mult
+            nf_mult = 2 ** n
+            sequence += [nn.Conv2d(ndf * nf_mult_prev,
+                                   ndf * nf_mult,
+                                   kernel_size=f_size,
+                                   stride=2,
+                                   padding=padding),
+                         nn.BatchNorm2d(ndf * nf_mult),
+                         nn.LeakyReLU(0.2, True)]
+
+        nf_mult_prev = nf_mult
+        nf_mult = 2 ** n_layers
+        sequence += [nn.Conv2d(ndf * nf_mult_prev,
+                               ndf * nf_mult,
+                               kernel_size=f_size,
+                               stride=1, padding=padding),
+                     nn.BatchNorm2d(ndf * nf_mult),
+                     nn.LeakyReLU(0.2, True)]
+
+        sequence += [nn.Conv2d(ndf * nf_mult,
+                               1, kernel_size=f_size,
+                               stride=1, padding=padding)]  # output 1 channel prediction map
+        
+        sequence += [nn.AvgPool2d(6)] 
+        
+        self.model = nn.Sequential(*sequence)
+
+    def forward(self, x):
+        return self.model(x)
+
+
+def train(generator_model, discriminator_model, data_loader, num_epochs, val_mode=False):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    generator_model = generator_model.to(device)
+    discriminator_model = discriminator_model.to(device)
+
+    if not val_mode:
+        gen_optimizer = optim.Adam(generator_model.parameters())
+        disc_optimizer = optim.Adam(discriminator_model.parameters())
+
+    BCE_loss = nn.BCEWithLogitsLoss()
+    L1_loss = nn.L1Loss()
+
+    Lambda = 0.01
+    loss_dictionary = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+    
     for epoch in range(num_epochs):
-        for i, data in enumerate(data_loader, 0):
+        print(f'epoch = {epoch:03d}')
+        ld = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+        for batch_idx, (input_img, target_images) in enumerate(data_loader):
+            print(f'Batch = {batch_idx:04d}', end='\r')
 
-            discriminator_model.zero_grad()
-            real_cpu = data[0].to(device)
-            b_size = real_cpu.size(0)
-            label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-            output = discriminator_model(real_cpu).view(-1)
-            errD_real = criterion(output, label)
-            errD_real.backward()
-            D_x = output.mean().item()
+            input_img = input_img.float().to(device)
+            target_images = target_images.float().to(device)
+            fake_images = generator_model(input_img)
+            
+            # Join fake images with its opiginal input & Pass through discriminator
+            fake_paired = torch.cat((input_img, fake_images), 1).float()
+            verdict_on_fake = discriminator_model(fake_paired).squeeze()
 
-            noise = torch.randn(b_size, nz, 1, 1, device=device)
-            fake = generator_model(noise)
-            label.fill_(fake_label)
-            output = discriminator_model(fake.detach()).view(-1)
-            errD_fake = criterion(output, label)
-            errD_fake.backward()
-            D_G_z1 = output.mean().item()
-            errD = errD_real + errD_fake
-            optimizerD.step()
+            # Join real images with its opiginal input & Pass through discriminator
+            real_paired = torch.cat((input_img, target_images), 1).float()
+            verdict_on_real = discriminator_model(real_paired).squeeze()
+
+            # Labels for real (1s) and fake (0s) images
+            ones = torch.ones_like(verdict_on_real).to(device)
+            zeros = torch.zeros_like(verdict_on_fake).to(device)
+
+            all_paired = torch.cat((fake_paired, real_paired))
+            all_labels = torch.cat((zeros, ones))
+            all_verdicts = torch.cat((verdict_on_fake.detach(), verdict_on_real)).to(device)
+
+            # Freeze generator & backprop on discriminator
+            generator_model.requires_grad = False
+            loss = BCE_loss(all_verdicts, all_labels)
+            if not val_mode:
+                disc_optimizer.zero_grad()
+                loss.backward()
+                disc_optimizer.step()
+            ld['Discriminator_BCE'].append(loss.item())
+            generator_model.requires_grad = True
+
+            # Freeze discriminator & backprop on generator
+            discriminator_model.requires_grad = False            
+            loss_bce = - BCE_loss(verdict_on_fake.detach(), zeros)
+            loss_l1 = L1_loss(target_images, fake_images)
+            loss_gen = loss_bce + Lambda * loss_l1
+            if not val_mode:
+                gen_optimizer.zero_grad()
+                loss_gen.backward()
+                gen_optimizer.step()
+            ld['Generator_BCE'].append(loss_bce)
+            ld['L1'].append(loss_l1)
+            discriminator_model.requires_grad = True
+
+        # Record average of losses from all batches
+        for k, v in ld.items():
+            loss_dictionary[k].append(sum(v)/len(v))
+    
+    return generator_model, discriminator_model, loss_dictionary
 
 
-            generator_model.zero_grad()
-            label.fill_(real_label)  
-            output = discriminator_model(fake).view(-1)
-            errG = criterion(output, label)
-            errG.backward()
-            D_G_z2 = output.mean().item()
-            optimizerG.step()
 
-            if i % 50 == 0:
-                print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                      % (epoch, num_epochs, i, len(dataloader),
-                         errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
 
-            G_losses.append(errG.item())
-            D_losses.append(errD.item())
 
-            if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
-                with torch.no_grad():
-                    fake = (fixed_noise).detach().cpu()
-                img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
-                torch.save(generator_model.state_dict(), f'model_weights/gen_{ep}.data')
-                torch.save(discriminator_model.state_dict(), f'model_weights/dis_{ep}.data')
 
-            iters += 1
-    return img_list, G_losses, D_losses
