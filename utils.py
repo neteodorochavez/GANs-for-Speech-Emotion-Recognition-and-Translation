@@ -158,7 +158,7 @@ def plot_images(data_loader, real_batch, img_list, epoch=-1):
     plt.show()
     
 def plot_loss(train_losses, val_losses):
-    fig, ax = plt.subplots(2, 2, figsize=(9, 9))
+    fig, ax = plt.subplots(3, 2, figsize=(10, 15))
     ax = ax.flatten()
     for i, k in enumerate(train_losses):
         ax[i].plot(train_losses[k], label='Train')
@@ -315,15 +315,39 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
 
-    loss_dictionary_train = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
-    loss_dictionary_val = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
+    loss_dictionary_train = {'Generator_BCE': [],
+                             "L1": [],
+                             'Discriminator_BCE_real': [],
+                             'Discriminator_BCE_fake': [],
+                             'Verdict_on_real': [],
+                             'Verdict_on_fake': []}
+
+    loss_dictionary_val = {'Generator_BCE': [],
+                           "L1": [],
+                           'Discriminator_BCE_real': [],
+                           'Discriminator_BCE_fake': [],
+                           'Verdict_on_real': [],
+                           'Verdict_on_fake': []}
+
     epoch_metrics = [loss_dictionary_train, loss_dictionary_val]
     
     for epoch in range(num_epochs):
-        print(f'-----------------------\nepoch = {epoch:03d}')
+        print(f'epoch = {epoch:03d}')
         
-        ld_train = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
-        ld_val = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
+        ld_train = {'Generator_BCE': [],
+                    'L1': [],
+                    'Discriminator_BCE_real':[],
+                    'Discriminator_BCE_fake':[],
+                    'Verdict_on_real': [],
+                    'Verdict_on_fake': []}
+
+        ld_val = {'Generator_BCE': [],
+                  'L1': [],
+                  'Discriminator_BCE_real':[],
+                  'Discriminator_BCE_fake':[],
+                  'Verdict_on_real': [],
+                  'Verdict_on_fake': []}
+                  
         batch_metrics = [ld_train, ld_val]
 
         for i, data_loader in enumerate([train_loader, val_loader]):
@@ -337,10 +361,12 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 # Join fake images with its opiginal input & Pass through discriminator
                 fake_paired = torch.cat((input_img, fake_images), 1).float()
                 verdict_on_fake = discriminator_model(fake_paired.detach()).squeeze()
+                batch_metrics[i]['Verdict_on_fake'].append(verdict_on_fake.mean().item())
 
                 # Join real images with its opiginal input & Pass through discriminator
                 real_paired = torch.cat((input_img, target_images), 1).float()
                 verdict_on_real = discriminator_model(real_paired).squeeze()
+                batch_metrics[i]['Verdict_on_real'].append(verdict_on_real.mean().item())
 
                 # Labels for real (1s) and fake (0s) images
                 ones = torch.ones_like(verdict_on_real).to(device)
