@@ -63,9 +63,9 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 -- insert model metrics -- 
   
 ## <a name="next">Next Steps</a>
-Additional improvements to increase model performance: 
-- Add More Data 
-- Hyperparameter Tuning 
+We were not able to get the model performance that we originally hoped for. Due to the time constraints, we weren't able to further improve model performance. We propose these additional improvements to increase model performance: 
+- Add More Data - We would love to merge more audio files from various voice actors in order to help the model generalize and improve overall performance. 
+- Weight Tuning - We would love to edit the CNN model training to improve its accuracy and performance. This would come in the form of augmenting the Mel Spectrograms; implementing learning rate annealing; and including skip connections in the form of residual blocks to the model architecture. 
 
 ---
 *This project was done for the course MSDS 631 - Deep Learning, in partial completion of the Masters in Data Science degree program at the University of San Francisco.*
