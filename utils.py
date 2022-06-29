@@ -361,12 +361,12 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 # Join fake images with its opiginal input & Pass through discriminator
                 fake_paired = torch.cat((input_img, fake_images), 1).float()
                 verdict_on_fake = discriminator_model(fake_paired.detach()).squeeze()
-                batch_metrics[i]['Verdict_on_fake'].append(verdict_on_fake.mean().item())
+                batch_metrics[i]['Verdict_on_fake'].append(F.sigmoid(verdict_on_fake).mean().item())
 
                 # Join real images with its opiginal input & Pass through discriminator
                 real_paired = torch.cat((input_img, target_images), 1).float()
                 verdict_on_real = discriminator_model(real_paired).squeeze()
-                batch_metrics[i]['Verdict_on_real'].append(verdict_on_real.mean().item())
+                batch_metrics[i]['Verdict_on_real'].append(F.sigmoid(verdict_on_real).mean().item())
 
                 # Labels for real (1s) and fake (0s) images
                 ones = torch.ones_like(verdict_on_real).to(device)
