@@ -59,7 +59,7 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 </p>  
 
 ## <a name="model">Model Architecture</a>
-For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks] (https://en.wikipedia.org/wiki/Generative_adversarial_network). We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
+For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network). We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
 1. **Learning Rate Scheduling:** Adaptive learning rate would allow the model to converge on the global minima in the loss space. We ensure that the learning rate would reduce when validation loss plateuxed every 2 epochs. 
 2. **Weight Decay:** Adding weight decay to the optimizzer, a form of regularization, helped in the training by preventing the weights from becoming too small or too large. 
 3. **Half Precision Training:** We reduce the float32 values to float16 in order to allow the gradient calculations and the image pixels to reduce in size. This also helped the model train faster and perform quicker back propogation calculations. 
