@@ -40,7 +40,7 @@ As we dove into the project, the first step was to preprocess the audio files fr
 
 
 Audio File: 
-https://user-images.githubusercontent.com/86546929/176379148-1a6c2899-84f7-43fd-85bb-1771769348ff.mp4
+https://user-images.githubusercontent.com/86546929/176379148-1a6c2899-84f7-43fd-85bb-1771769348ff.mp4?raw=true
 
 
 <p align="center">
