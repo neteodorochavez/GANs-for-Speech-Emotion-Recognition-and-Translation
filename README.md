@@ -38,6 +38,10 @@ For our analysis, our main focus entailed translating the audio from one emotion
 
 As we dove into the project, the first step was to preprocess the audio files from RAVDESS by using Acoustic Feature Extraction. Here, we can see the the audio files that we were initially working with. 
 
+<p>
+<audio src="data/speech-emotion-recognition-ravdess-data/Actor_01/03-01-01-01-01-01-01.wav" autoPlay loop></audio>
+</p>
+
 <p align="center">
   <img src="SampleImages/audio_ex.png" width="1200"/>
 </p>
