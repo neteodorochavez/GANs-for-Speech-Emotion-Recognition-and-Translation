@@ -310,7 +310,7 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
     discriminator_model = discriminator_model.to(device)
 
     gen_optimizer = optim.Adam(generator_model.parameters(), lr=2*0.001)
-    disc_optimizer = optim.Adam(discriminator_model.parameters(), lr=0.0001)
+    disc_optimizer = optim.Adam(discriminator_model.parameters(), lr=0.00001)
 
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
