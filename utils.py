@@ -163,10 +163,10 @@ def plot_loss(train_losses, val_losses):
     for i, k in enumerate(train_losses):
         ax[i].plot(train_losses[k], label='Train')
         ax[i].plot(val_losses[k], label='Val')
-        ax[i].set_title(k.split('_')[0])
+        ax[i].set_title(' '.join(k.split('_')))
         ax[i].set_xlabel('Epochs')
         ax[i].legend()
-    ax[-1].axis('off')
+    # ax[-1].axis('off')
     plt.tight_layout()
     plt.show()
 
@@ -315,15 +315,15 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
 
-    loss_dictionary_train = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
-    loss_dictionary_val = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+    loss_dictionary_train = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
+    loss_dictionary_val = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
     epoch_metrics = [loss_dictionary_train, loss_dictionary_val]
     
     for epoch in range(num_epochs):
         print(f'-----------------------\nepoch = {epoch:03d}')
         
-        ld_train = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
-        ld_val = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+        ld_train = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
+        ld_val = {'Generator_BCE': [], 'Discriminator_BCE_real':[], 'Discriminator_BCE_fake':[], "L1": []}
         batch_metrics = [ld_train, ld_val]
 
         for i, data_loader in enumerate([train_loader, val_loader]):
@@ -336,7 +336,7 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 
                 # Join fake images with its opiginal input & Pass through discriminator
                 fake_paired = torch.cat((input_img, fake_images), 1).float()
-                verdict_on_fake = discriminator_model(fake_paired).squeeze()
+                verdict_on_fake = discriminator_model(fake_paired.detach()).squeeze()
 
                 # Join real images with its opiginal input & Pass through discriminator
                 real_paired = torch.cat((input_img, target_images), 1).float()
@@ -346,23 +346,24 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 ones = torch.ones_like(verdict_on_real).to(device)
                 zeros = torch.zeros_like(verdict_on_fake).to(device)
 
-                all_paired = torch.cat((fake_paired, real_paired))
-                all_labels = torch.cat((zeros, ones))
-                all_verdicts = torch.cat((verdict_on_fake.detach(), verdict_on_real)).to(device)
-
-                # Freeze generator & backprop on discriminator
-                generator_model.requires_grad = False
-                loss = BCE_loss(all_verdicts, all_labels)
+                # Backprop on discriminator (for real data)
+                disc_optimizer.zero_grad()
+                loss = BCE_loss(verdict_on_real, ones)
                 if not i:
-                    disc_optimizer.zero_grad()
+                    loss.backward()
+                batch_metrics[i]['Discriminator_BCE_real'].append(loss.item())
+                
+
+                # Backprop on discriminator (for fake data)
+                loss = BCE_loss(verdict_on_fake, zeros)
+                if not i:
                     loss.backward()
                     disc_optimizer.step()
-                batch_metrics[i]['Discriminator_BCE'].append(loss.item())
-                generator_model.requires_grad = True
+                batch_metrics[i]['Discriminator_BCE_fake'].append(loss.item())
                 
-                # Freeze discriminator & backprop on generator
-                discriminator_model.requires_grad = False            
-                loss_bce = - BCE_loss(verdict_on_fake.detach(), zeros)
+                # Backprop on generator
+                verdict_on_fake = discriminator_model(fake_paired).squeeze()
+                loss_bce = BCE_loss(verdict_on_fake, ones)
                 loss_l1 = L1_loss(target_images, fake_images)
                 loss_gen = loss_bce + Lambda * loss_l1
                 if not i:
@@ -371,7 +372,6 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                     gen_optimizer.step()
                 batch_metrics[i]['Generator_BCE'].append(loss_bce.item())
                 batch_metrics[i]['L1'].append(loss_l1.item())
-                discriminator_model.requires_grad = True
 
             # Record average of losses from all batches
             for k, v in batch_metrics[i].items():
