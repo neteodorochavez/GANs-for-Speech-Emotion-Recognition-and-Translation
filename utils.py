@@ -370,12 +370,16 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 batch_metrics[i]['Verdict_on_real'].append(torch.sigmoid(verdict_on_real).mean().item())
 
                 # Labels for real (1s) and fake (0s) images
-                ones = torch.ones_like(verdict_on_real).to(device)
-                zeros = torch.zeros_like(verdict_on_fake).to(device)
+                ones = torch.ones_like(verdict_on_real)
+                zeros = torch.zeros_like(verdict_on_fake)
 
                 # Add noise to labels for more stable training (Label Smoothing)
                 ones -= label_smoothing * torch.rand(ones.shape)
-                zeros += label_smoothing * torch.rand(ones.shape)
+                zeros += label_smoothing * torch.rand(zeros.shape)
+
+                # Send labels to GPU
+                ones = ones.to(device)
+                zeros = zeros.to(device)
 
 
                 # Backprop on discriminator (for real data)
