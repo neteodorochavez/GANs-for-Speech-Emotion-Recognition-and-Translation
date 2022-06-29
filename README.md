@@ -8,6 +8,8 @@ Leveraging the power of deep learning model architectures has been at the forefr
 
 SER (Speech Emotion Recognition) is a task that focuses and emphasizes the recognition of emotional apsects in speech irrespective of semantic contents. This task partnered with [Neural Style Transfer] (https://en.wikipedia.org/wiki/Neural_style_transfer), in theory, should allow complex model architectures to be trained in order to learn a meaningful way of processing an audio file and translating from one emotion to another. 
 
+--- 
+
 Table of Contents:<br>
 1. [Deep Learning Goal](#goal)<br>
 2. [Dataset](#data)<br>
@@ -15,6 +17,7 @@ Table of Contents:<br>
 4. [Model Architecture](#model)<br>
 5. [Model Performance](#results)<br>
 6. [Next Steps](#next)<br>
+--- 
 
 ## <a name="goal">Deep Learning Goal </a>
 Our Deep Learning Goal is to leverage General Adversarial Networks in order to recognize the type of emotion from audio files. Our ultimate goal is to modify original audio source in order to generate a new audio file that has been translated to a different emotion. 
