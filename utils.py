@@ -1,4 +1,3 @@
-from syslog import LOG_SYSLOG
 import torch
 import torch.nn as nn 
 import torch.nn.functional as F 
@@ -158,72 +157,18 @@ def plot_images(data_loader, real_batch, img_list, epoch=-1):
     plt.imshow(np.transpose(img_list[epoch],(1,2,0)))
     plt.show()
     
-def plot_loss(G_losses, D_losses):
-    plt.figure(figsize=(10,5))
-    plt.title("Generator and Discriminator Loss During Training")
-    plt.plot(G_losses,label="G")
-    plt.plot(D_losses,label="D")
-    plt.xlabel("iterations")
-    plt.ylabel("Loss")
-    plt.legend()
+def plot_loss(train_losses, val_losses):
+    fig, ax = plt.subplots(2, 2, figsize=(9, 9))
+    ax = ax.flatten()
+    for i, k in enumerate(train_losses):
+        ax[i].plot(train_losses[k], label='Train')
+        ax[i].plot(val_losses[k], label='Val')
+        ax[i].set_title(k.split('_')[0])
+        ax[i].set_xlabel('Epochs')
+        ax[i].legend()
+    ax[-1].axis('off')
+    plt.tight_layout()
     plt.show()
-    
-# def train(data_loader, generator_model, discriminator_model, num_epochs, ep):
-#     real_label = ''
-#     img_list = []
-#     G_losses = []
-#     D_losses = []
-#     iters = 0
-#     print("Starting Training Loop...")
-#     for epoch in range(num_epochs):
-#         for i, data in enumerate(data_loader, 0):
-
-#             discriminator_model.zero_grad()
-#             real_cpu = data[0].to(device)
-#             b_size = real_cpu.size(0)
-#             label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
-#             output = discriminator_model(real_cpu).view(-1)
-#             errD_real = criterion(output, label)
-#             errD_real.backward()
-#             D_x = output.mean().item()
-
-#             noise = torch.randn(b_size, nz, 1, 1, device=device)
-#             fake = generator_model(noise)
-#             label.fill_(fake_label)
-#             output = discriminator_model(fake.detach()).view(-1)
-#             errD_fake = criterion(output, label)
-#             errD_fake.backward()
-#             D_G_z1 = output.mean().item()
-#             errD = errD_real + errD_fake
-#             optimizerD.step()
-
-
-#             generator_model.zero_grad()
-#             label.fill_(real_label)  
-#             output = discriminator_model(fake).view(-1)
-#             errG = criterion(output, label)
-#             errG.backward()
-#             D_G_z2 = output.mean().item()
-#             optimizerG.step()
-
-#             if i % 50 == 0:
-#                 print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-#                       % (epoch, num_epochs, i, len(dataloader),
-#                          errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
-
-#             G_losses.append(errG.item())
-#             D_losses.append(errD.item())
-
-#             if (iters % 500 == 0) or ((epoch == num_epochs-1) and (i == len(dataloader)-1)):
-#                 with torch.no_grad():
-#                     fake = (fixed_noise).detach().cpu()
-#                 img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
-#                 torch.save(generator_model.state_dict(), f'model_weights/gen_{ep}.data')
-#                 torch.save(discriminator_model.state_dict(), f'model_weights/dis_{ep}.data')
-
-#             iters += 1
-#     return img_list, G_losses, D_losses
-
 
 class ConvBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -356,79 +301,81 @@ class NLayerDiscriminator(nn.Module):
         return self.model(x)
 
 
-def train(generator_model, discriminator_model, data_loader, num_epochs, val_mode=False):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+def train(generator_model, discriminator_model, train_loader, val_loader,
+          device=None, Lambda=0.01, num_epochs=1):
+    
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
     
     generator_model = generator_model.to(device)
     discriminator_model = discriminator_model.to(device)
 
-    if not val_mode:
-        gen_optimizer = optim.Adam(generator_model.parameters())
-        disc_optimizer = optim.Adam(discriminator_model.parameters())
+    gen_optimizer = optim.Adam(generator_model.parameters())
+    disc_optimizer = optim.Adam(discriminator_model.parameters())
 
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
 
-    Lambda = 0.01
-    loss_dictionary = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+    loss_dictionary_train = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+    loss_dictionary_val = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+    epoch_metrics = [loss_dictionary_train, loss_dictionary_val]
     
     for epoch in range(num_epochs):
-        print(f'epoch = {epoch:03d}')
-        ld = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
-        for batch_idx, (input_img, target_images) in enumerate(data_loader):
-            print(f'Batch = {batch_idx:04d}', end='\r')
+        print(f'-----------------------\nepoch = {epoch:03d}')
+        
+        ld_train = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+        ld_val = {'Generator_BCE': [], 'Discriminator_BCE':[], "L1": []}
+        batch_metrics = [ld_train, ld_val]
 
-            input_img = input_img.float().to(device)
-            target_images = target_images.float().to(device)
-            fake_images = generator_model(input_img)
-            
-            # Join fake images with its opiginal input & Pass through discriminator
-            fake_paired = torch.cat((input_img, fake_images), 1).float()
-            verdict_on_fake = discriminator_model(fake_paired).squeeze()
+        for i, data_loader in enumerate([train_loader, val_loader]):
+            for batch_idx, (input_img, target_images) in enumerate(data_loader):
+                print(f'Batch = {batch_idx:04d}', end='\r')
 
-            # Join real images with its opiginal input & Pass through discriminator
-            real_paired = torch.cat((input_img, target_images), 1).float()
-            verdict_on_real = discriminator_model(real_paired).squeeze()
+                input_img = input_img.float().to(device)
+                target_images = target_images.float().to(device)
+                fake_images = generator_model(input_img)
+                
+                # Join fake images with its opiginal input & Pass through discriminator
+                fake_paired = torch.cat((input_img, fake_images), 1).float()
+                verdict_on_fake = discriminator_model(fake_paired).squeeze()
 
-            # Labels for real (1s) and fake (0s) images
-            ones = torch.ones_like(verdict_on_real).to(device)
-            zeros = torch.zeros_like(verdict_on_fake).to(device)
+                # Join real images with its opiginal input & Pass through discriminator
+                real_paired = torch.cat((input_img, target_images), 1).float()
+                verdict_on_real = discriminator_model(real_paired).squeeze()
 
-            all_paired = torch.cat((fake_paired, real_paired))
-            all_labels = torch.cat((zeros, ones))
-            all_verdicts = torch.cat((verdict_on_fake.detach(), verdict_on_real)).to(device)
+                # Labels for real (1s) and fake (0s) images
+                ones = torch.ones_like(verdict_on_real).to(device)
+                zeros = torch.zeros_like(verdict_on_fake).to(device)
 
-            # Freeze generator & backprop on discriminator
-            generator_model.requires_grad = False
-            loss = BCE_loss(all_verdicts, all_labels)
-            if not val_mode:
-                disc_optimizer.zero_grad()
-                loss.backward()
-                disc_optimizer.step()
-            ld['Discriminator_BCE'].append(loss.item())
-            generator_model.requires_grad = True
+                all_paired = torch.cat((fake_paired, real_paired))
+                all_labels = torch.cat((zeros, ones))
+                all_verdicts = torch.cat((verdict_on_fake.detach(), verdict_on_real)).to(device)
 
-            # Freeze discriminator & backprop on generator
-            discriminator_model.requires_grad = False            
-            loss_bce = - BCE_loss(verdict_on_fake.detach(), zeros)
-            loss_l1 = L1_loss(target_images, fake_images)
-            loss_gen = loss_bce + Lambda * loss_l1
-            if not val_mode:
-                gen_optimizer.zero_grad()
-                loss_gen.backward()
-                gen_optimizer.step()
-            ld['Generator_BCE'].append(loss_bce)
-            ld['L1'].append(loss_l1)
-            discriminator_model.requires_grad = True
+                # Freeze generator & backprop on discriminator
+                generator_model.requires_grad = False
+                loss = BCE_loss(all_verdicts, all_labels)
+                if not i:
+                    disc_optimizer.zero_grad()
+                    loss.backward()
+                    disc_optimizer.step()
+                batch_metrics[i]['Discriminator_BCE'].append(loss.item())
+                generator_model.requires_grad = True
+                
+                # Freeze discriminator & backprop on generator
+                discriminator_model.requires_grad = False            
+                loss_bce = - BCE_loss(verdict_on_fake.detach(), zeros)
+                loss_l1 = L1_loss(target_images, fake_images)
+                loss_gen = loss_bce + Lambda * loss_l1
+                if not i:
+                    gen_optimizer.zero_grad()
+                    loss_gen.backward()
+                    gen_optimizer.step()
+                batch_metrics[i]['Generator_BCE'].append(loss_bce.item())
+                batch_metrics[i]['L1'].append(loss_l1.item())
+                discriminator_model.requires_grad = True
 
-        # Record average of losses from all batches
-        for k, v in ld.items():
-            loss_dictionary[k].append(sum(v)/len(v))
+            # Record average of losses from all batches
+            for k, v in batch_metrics[i].items():
+                epoch_metrics[i][k].append(sum(v)/len(v))
     
-    return generator_model, discriminator_model, loss_dictionary
-
-
-
-
-
+    return generator_model, discriminator_model, loss_dictionary_train, loss_dictionary_val
 
