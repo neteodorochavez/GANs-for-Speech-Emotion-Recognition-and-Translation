@@ -4,6 +4,9 @@
 
 
 ## Introduction
+Leveraging the power of deep learning model architectures has been at the forefront of progression in various fields. The agency in which audio processing has accelerated over the last decade has been astonishing. We've seen the power that CNN's hold on images and text. Our aim is to understand and build deep learning models on audio data. 
+
+SER (Speech Emotion Recognition) is a task that focuses and emphasizes the recognition of emotional apsects in speech irrespective of semantic contents. This task partnered with Style Transfer Learning, in theory, should allow complex model architectures to be trained in order to learn a meaningful way of processing an audio file and translating from one emotion to another. 
 
 Table of Contents:<br>
 1. [Deep Learning Goal](#goal)<br>
