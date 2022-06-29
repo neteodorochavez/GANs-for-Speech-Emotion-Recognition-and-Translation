@@ -39,30 +39,30 @@ For our analysis, our main focus entailed translating the audio from one emotion
 As we dove into the project, the first step was to preprocess the audio files from RAVDESS by using Acoustic Feature Extraction. Here, we can see the the audio files that we were initially working with. 
 
 <p float="left">
-  <img src="SampleImages/audio_ex.png" width="1200"/>
+  <img align="center" src="SampleImages/audio_ex.png" width="1200"/>
 </p>
   
 The next step in this preprocessing was converting these Waveform Audio Files into Mel Spectrograms. The main reason for the conversion was for visualizing the wide spectrum of frequencies over a period of time. This conversion was made possible by leveraging the librosa library in Python. 
 
-<p float="center">
-  <img src="SampleImages/melSpec_ex.png" width="1200"/>
+<p float="left">
+  <img align="center" src="SampleImages/melSpec_ex.png" width="1200"/>
 </p>
 
 We then normalize these images. This is a plot of all emotions presented in the RAVDESS dataset that have been normalized. One can note, the mel spectrogram of emotions are all quite similar as the sentence the voice actor is stating is the same but in various varying emotions.  
 <p float="left">
-  <img src="SampleImages/sample_all_emotions.png" width="1200"/>
+  <img align="center" src="SampleImages/sample_all_emotions.png" width="1200"/>
 </p>
 
 We can get a better sense of the dataset by looking at one more sample. Here, the mel spectrograms are different because the sentence and voice actor are different. 
-<p float="center">
-  <img src="SampleImages/sample_all_emotions_2.png" width="1200"/>
+<p float="left">
+  <img align="center" src="SampleImages/sample_all_emotions_2.png" width="1200"/>
 </p>  
 
 ## <a name="model">Model Architecture</a>
 For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network). 
 
-<p float="center">
-  <img src="SampleImages/GAN.png" width="800"/>
+<p float="left">
+  <img align="center" src="SampleImages/GAN.png" width="800"/>
 </p>
 
 We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
