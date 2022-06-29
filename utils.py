@@ -309,8 +309,8 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
     generator_model = generator_model.to(device)
     discriminator_model = discriminator_model.to(device)
 
-    gen_optimizer = optim.Adam(generator_model.parameters())
-    disc_optimizer = optim.Adam(discriminator_model.parameters())
+    gen_optimizer = optim.Adam(generator_model.parameters(), lr=2*0.0001)
+    disc_optimizer = optim.Adam(discriminator_model.parameters(), lr=0.0001)
 
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
@@ -332,7 +332,7 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
     epoch_metrics = [loss_dictionary_train, loss_dictionary_val]
     
     for epoch in range(num_epochs):
-        print(f'epoch = {epoch:03d}')
+        print(f'\nepoch = {epoch:03d}')
         
         ld_train = {'Generator_BCE': [],
                     'L1': [],
