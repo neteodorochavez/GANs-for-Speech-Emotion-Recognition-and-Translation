@@ -6,7 +6,7 @@
 ## Introduction
 Leveraging the power of deep learning model architectures has been at the forefront of progression in various fields. The agency in which audio processing has accelerated over the last decade has been astonishing. We've seen the power that CNN's hold on images and text. Our aim is to understand and build deep learning models on audio data. 
 
-SER (Speech Emotion Recognition) is a task that focuses and emphasizes the recognition of emotional apsects in speech irrespective of semantic contents. This task partnered with Style Transfer Learning, in theory, should allow complex model architectures to be trained in order to learn a meaningful way of processing an audio file and translating from one emotion to another. 
+SER (Speech Emotion Recognition) is a task that focuses and emphasizes the recognition of emotional apsects in speech irrespective of semantic contents. This task partnered with [Neural Style Transfer] (https://en.wikipedia.org/wiki/Neural_style_transfer), in theory, should allow complex model architectures to be trained in order to learn a meaningful way of processing an audio file and translating from one emotion to another. 
 
 Table of Contents:<br>
 1. [Deep Learning Goal](#goal)<br>
@@ -20,7 +20,15 @@ Table of Contents:<br>
 Our Deep Learning Goal is to leverage General Adversarial Networks in order to recognize the type of emotion from audio files. Our ultimate goal is to modify original audio source in order to generate a new audio file that has been translated to a different emotion. 
 
 ## <a name="data">Dataset</a> 
-We are using [RAVDESS dataset](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio). The dataset consists of 24 voice actors. These voice actors provide audio in the form of .wav for various sentences and 8 emotions. The emotions we work with are Neutral, Calm, Happy, Sad, Angry, Fear, Disgust, and Surprise. 
+We are using [RAVDESS dataset](https://www.kaggle.com/datasets/uwrfkaggler/ravdess-emotional-speech-audio). The dataset consists of 24 voice actors. These voice actors provide audio in the form of .wav for various sentences and 8 emotions. The emotions we work with are: 
+* Neutral
+* Calm
+* Happy 
+* Sad
+* Anger 
+* Fear
+* Disgust
+* Surprise. 
 
 ## <a name="techniques">Techniques & Preprocessing</a> 
 We preprocess our audio files by using Acoustic Feature Extraction. 
