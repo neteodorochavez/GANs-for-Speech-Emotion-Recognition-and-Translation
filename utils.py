@@ -302,15 +302,15 @@ class NLayerDiscriminator(nn.Module):
 
 
 def train(generator_model, discriminator_model, train_loader, val_loader,
-          device=None, Lambda=0.01, num_epochs=1):
+          device=None, Lambda=0.01, num_epochs=1, lr_g=0.0001, lr_d=0.00001):
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
     
     generator_model = generator_model.to(device)
     discriminator_model = discriminator_model.to(device)
 
-    gen_optimizer = optim.Adam(generator_model.parameters(), lr=2*0.001)
-    disc_optimizer = optim.Adam(discriminator_model.parameters(), lr=0.00001)
+    gen_optimizer = optim.Adam(generator_model.parameters(), lr=lr_g)
+    disc_optimizer = optim.Adam(discriminator_model.parameters(), lr=lr_d)
 
     BCE_loss = nn.BCEWithLogitsLoss()
     L1_loss = nn.L1Loss()
