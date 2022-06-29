@@ -252,7 +252,7 @@ class NLayerDiscriminator(nn.Module):
     Defines a PatchGAN discriminator
     """
 
-    def __init__(self, input_nc=8, ndf=64, n_layers=4):
+    def __init__(self, input_nc=8, ndf=64, n_layers=3):
         """Construct a PatchGAN discriminator
         Parameters:
             input_nc (int)  -- the number of channels in input images
