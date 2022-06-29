@@ -38,9 +38,10 @@ For our analysis, our main focus entailed translating the audio from one emotion
 
 As we dove into the project, the first step was to preprocess the audio files from RAVDESS by using Acoustic Feature Extraction. Here, we can see the the audio files that we were initially working with. 
 
+
 <p>
   Audio File: 
-  [https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/tree/main/data/speech-emotion-recognition-ravdess-data/Actor_01/03-01-01-01-01-01-01.wav?raw=true]
+  <audio src="https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/tree/main/data/speech-emotion-recognition-ravdess-data/Actor_01/03-01-01-01-01-01-01.wav" controls preload></audio>
 </p>
 
 <p align="center">
