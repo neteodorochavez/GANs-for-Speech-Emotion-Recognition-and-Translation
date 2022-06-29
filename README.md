@@ -60,10 +60,10 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 
 ## <a name="model">Model Architecture</a>
 For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks] (https://en.wikipedia.org/wiki/Generative_adversarial_network). We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
-1. Learning Rate Scheduling: Adaptive learning rate would allow the model to converge on the global minima in the loss space. We ensure that the learning rate would reduce when validation loss plateuxed every 2 epochs. 
-2. Weight Decay: Adding weight decay to the optimizzer, a form of regularization, helped in the training by preventing the weights from becoming too small or too large. 
-3. Half Precision Training: We reduce the float32 values to float16 in order to allow the gradient calculations and the image pixels to reduce in size. This also helped the model train faster and perform quicker back propogation calculations. 
-4. Batch Normalization: This was another form of regularization that we added contribued to reducing generalization error. It also helped with faster performance on training the model. 
+1. **Learning Rate Scheduling:** Adaptive learning rate would allow the model to converge on the global minima in the loss space. We ensure that the learning rate would reduce when validation loss plateuxed every 2 epochs. 
+2. **Weight Decay:** Adding weight decay to the optimizzer, a form of regularization, helped in the training by preventing the weights from becoming too small or too large. 
+3. **Half Precision Training:** We reduce the float32 values to float16 in order to allow the gradient calculations and the image pixels to reduce in size. This also helped the model train faster and perform quicker back propogation calculations. 
+4. **Batch Normalization:** This was another form of regularization that we added contribued to reducing generalization error. It also helped with faster performance on training the model. 
 
 <p float="left">
   <img src="SampleImages/GAN.png" width="800"/>
@@ -75,8 +75,8 @@ For our project, we wanted to generate samples that were fake. This was made pos
   
 ## <a name="next">Next Steps</a>
 We were not able to get the model performance that we originally hoped for. Due to the time constraints, we weren't able to further improve model performance. We propose these additional improvements to increase model performance: 
-- Add More Data - We would love to merge more audio files from various voice actors in order to help the model generalize and improve overall performance. 
-- Weight Tuning - We would love to edit the CNN model training to improve its accuracy and performance. This would come in the form of augmenting the Mel Spectrograms; experimenting with various learning rate annealing techniques; and including skip connections in the form of residual blocks to the model architecture. 
+- **Add More Data** - We would love to merge more audio files from various voice actors in order to help the model generalize and improve overall performance. 
+- **Weight Tuning** - We would love to edit the CNN model training to improve its accuracy and performance. This would come in the form of augmenting the Mel Spectrograms; experimenting with various learning rate annealing techniques; and including skip connections in the form of residual blocks to the model architecture. 
 
 ---
 *This project was done for the course MSDS 631 - Deep Learning, in partial completion of the Masters in Data Science degree program at the University of San Francisco.*
