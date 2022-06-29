@@ -302,7 +302,8 @@ class NLayerDiscriminator(nn.Module):
 
 
 def train(generator_model, discriminator_model, train_loader, val_loader,
-          device=None, Lambda=0.01, num_epochs=1, lr_g=0.0001, lr_d=0.00001):
+          device=None, Lambda=0.01, num_epochs=1, lr_g=0.0001, lr_d=0.00001,
+          label_smoothing=0.1):
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
     
@@ -371,6 +372,11 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 # Labels for real (1s) and fake (0s) images
                 ones = torch.ones_like(verdict_on_real).to(device)
                 zeros = torch.zeros_like(verdict_on_fake).to(device)
+
+                # Add noise to labels for more stable training (Label Smoothing)
+                ones -= label_smoothing * torch.rand(ones.shape)
+                zeros += label_smoothing * torch.rand(ones.shape)
+
 
                 # Backprop on discriminator (for real data)
                 disc_optimizer.zero_grad()
