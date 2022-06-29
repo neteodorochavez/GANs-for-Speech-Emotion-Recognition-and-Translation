@@ -44,7 +44,7 @@ As we dove into the project, the first step was to preprocess the audio files fr
   
 The next step in this preprocessing was converting these Waveform Audio Files into Mel Spectrograms. The main reason for the conversion was for visualizing the wide spectrum of frequencies over a period of time. This conversion was made possible by leveraging the librosa library in Python. 
 
-<p float="left">
+<p float="center">
   <img src="SampleImages/melSpec_ex.png" width="1200"/>
 </p>
 
@@ -54,15 +54,15 @@ We then normalize these images. This is a plot of all emotions presented in the 
 </p>
 
 We can get a better sense of the dataset by looking at one more sample. Here, the mel spectrograms are different because the sentence and voice actor are different. 
-<p float="left">
+<p float="center">
   <img src="SampleImages/sample_all_emotions_2.png" width="1200"/>
 </p>  
 
 ## <a name="model">Model Architecture</a>
 For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network). 
 
-<p float="left">
-  <img src="SampleImages/GAN.png" width="600"/>
+<p float="center">
+  <img src="SampleImages/GAN.png" width="800"/>
 </p>
 
 We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
