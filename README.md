@@ -67,4 +67,5 @@ Additional improvements to increase model performance:
 - Add More Data 
 - Hyperparameter Tuning 
 
-** This project was done for the course MSDS 631 - Deep Learning, in partial completion of the Masters in Data Science degree program at the University of San Francisco.
+---
+*This project was done for the course MSDS 631 - Deep Learning, in partial completion of the Masters in Data Science degree program at the University of San Francisco.*
