@@ -40,7 +40,7 @@ As we dove into the project, the first step was to preprocess the audio files fr
 
 <p>
   Audio File: 
-  https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/tree/main/data/speech-emotion-recognition-ravdess-data/Actor_01/03-01-01-01-01-01-01.wav?raw=true
+  [https://github.com/neteodorochavez/GANs-for-Speech-Emotion-Recognition-and-Translation/tree/main/data/speech-emotion-recognition-ravdess-data/Actor_01/03-01-01-01-01-01-01.wav?raw=true]
 </p>
 
 <p align="center">
