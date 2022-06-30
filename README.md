@@ -67,18 +67,18 @@ We can get a better sense of the dataset by looking at one more sample. Here, th
 For our project, we wanted to generate samples that were fake. This was made possible by leveraging [Generative Adversarial Networks](https://en.wikipedia.org/wiki/Generative_adversarial_network). 
 
 <p align="center">
-  <img src="SampleImages/GAN.png" width="1200"/>
+  <img src="SampleImages/combined_generic.png" width=540/>
 </p>
 
 We paired the GAN architecture with a Convolutional Neural Network, UNet. Based on our analysis, we found the following techniques to be helpful in achieving a high model performance: 
-1. **Learning Rate Scheduling:** Adaptive learning rate would allow the model to converge on the global minima in the loss space. We ensure that the learning rate would reduce when validation loss plateuxed every 2 epochs. 
-2. **Weight Decay:** Adding weight decay to the optimizzer, a form of regularization, helped in the training by preventing the weights from becoming too small or too large. 
-3. **Half Precision Training:** We reduce the float32 values to float16 in order to allow the gradient calculations and the image pixels to reduce in size. This also helped the model train faster and perform quicker back propogation calculations. 
-4. **Batch Normalization:** This was another form of regularization that we added contribued to reducing generalization error. It also helped with faster performance on training the model. 
+1. **Label Smoothing:** We add small random noise in the labels for discriminator. This prevents the discriminator from learning too quickly and overpowering the generator
+2. **Asymmetric Training:** We train Generator more than the discriminator (or vice versa).
+3. **Batch Normalization:** This was a form of regularization that we added to reduce generalization error. It also helped with faster performance on training the model. 
   
 ## <a name="results">Model Performance</a>
--- insert chart of training/validation --  
--- insert model metrics -- 
+<p align="center">
+  <img src="SampleImages/loss_curves.png"/ width=540/>
+</p>
   
 ## <a name="next">Next Steps</a>
 We were not able to get the model performance that we originally hoped for. Due to the time constraints, we weren't able to further improve model performance. We propose these additional improvements to increase model performance: 
