@@ -82,7 +82,40 @@ class EmotionDataset(Dataset):
         
         # print(i)
         return images[i].unsqueeze(0), images
+
+class EmotionDataset2(Dataset):
+    def __init__(self, df, transform=None):
+        self.imgs_files = [f for f in df.image_path.values]
+        self.label = [f for f in df['emotion_id'].values]
     
+    def __len__(self): 
+        return len(self.label)
+    
+    def _getname__(self, idx): 
+        return self.label[idx]
+    
+    def __getitem__(self, idx):
+        i = idx%8
+        idx = int(idx/8) 
+        
+        img_paths = self.imgs_files[8*idx:8*idx+8]
+        label = self.label[idx]
+        
+        imgs = np.empty((8, 256, 256))
+        # Read Image:
+        for j, img_path in enumerate(img_paths):
+            img = np.load(img_path) 
+        #     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+        #     img = cv2.resize(img, (128,128))
+            imgs[j] = img
+                
+        images = torch.from_numpy(imgs)
+        
+        # print(i)
+        return images[i].unsqueeze(0), images
+
+
+
 class Generator(nn.Module):
     def __init__(self, ngpu):
         super(Generator, self).__init__()
