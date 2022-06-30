@@ -302,7 +302,7 @@ class NLayerDiscriminator(nn.Module):
 
 
 def train(generator_model, discriminator_model, train_loader, val_loader,
-          device=None, Lambda=0.01, num_epochs=1, lr_g=0.0001, lr_d=0.00001,
+          device=None, Lambda=1, num_epochs=1, lr_g=0.00001, lr_d=0.00001,
           label_smoothing=0.1):
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
