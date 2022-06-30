@@ -31,7 +31,7 @@ We are using [RAVDESS dataset](https://www.kaggle.com/datasets/uwrfkaggler/ravde
 * Anger 
 * Fear
 * Disgust
-* Surprise. 
+* Surprise
 
 ## <a name="techniques">Techniques & Preprocessing</a> 
 For our analysis, our main focus entailed translating the audio from one emotion to another. The concurrent goal was to classify the emotion from the audio itsef. We started out journey by learning about the model architecture and concepts behind why GANs work. 
