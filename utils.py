@@ -15,43 +15,6 @@ import librosa
 import librosa.display
 import skimage.io
 
-# number of workers
-workers = 2
-
-# batch size
-batch_size = 64
-
-# image size
-image_size = 128
-
-# number of channels 
-nc = 1
-
-# length of latent/random vector
-nz = 100
-
-# number of generator filters
-ngf = 64 
-
-# number of discriminator filters
-ndf = 64
-
-# momentum hyperparam for Adam optimizer
-beta1 = 0.5
-
-# num of gpus
-ngpu = 1
-
-# use cuda if available
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-def weights_init(m):
-    classname = m.__class__.__name__
-    if classname.find('Conv') != -1:
-        nn.init.normal_(m.weight.data, 0.0, 0.02)
-    elif classname.find('BatchNorm') != -1:
-        nn.init.normal_(m.weight.data, 1.0, 0.02)
-        nn.init.constant_(m.bias.data, 0)
 
 class EmotionDataset(Dataset):
     def __init__(self, df, transform=None):
@@ -115,80 +78,43 @@ class EmotionDataset2(Dataset):
         return images[i].unsqueeze(0), images
 
 
-
-class Generator(nn.Module):
-    def __init__(self, ngpu):
-        super(Generator, self).__init__()
-        self.ngpu = ngpu
-        self.main = nn.Sequential(
-            # input is Z, going into a convolution
-            nn.ConvTranspose2d( nz, ngf * 8, 4, 1, 0, bias=False),
-            nn.BatchNorm2d(ngf * 8),
-            nn.ReLU(True),
-            # state size. (ngf*8) x 4 x 4
-            nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 4),
-            nn.ReLU(True),
-            # state size. (ngf*4) x 8 x 8
-            nn.ConvTranspose2d( ngf * 4, ngf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf * 2),
-            nn.ReLU(True),
-            # state size. (ngf*2) x 16 x 16
-            nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ngf),
-            nn.ReLU(True),
-            # state size. (ngf) x 32 x 32
-            nn.ConvTranspose2d( ngf, nc, 4, 2, 1, bias=False),
-            nn.Tanh()
-            # state size. (nc) x 64 x 64
-        )
-
-    def forward(self, input):
-        return self.main(input)
+class EmotionDataset3(Dataset):
+    def __init__(self, df, transform=None):
+        self.imgs_files = [f for f in df.image_path.values]
+        self.label = [f for f in df['emotion_id'].values]
     
-class Discriminator(nn.Module):
-    def __init__(self, ngpu):
-        super(Discriminator, self).__init__()
-        self.ngpu = ngpu
-        self.main = nn.Sequential(
-            # input is (nc) x 64 x 64
-            nn.Conv2d(nc, ndf, 4, 2, 1, bias=False),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf) x 32 x 32
-            nn.Conv2d(ndf, ndf * 2, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 2),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*2) x 16 x 16
-            nn.Conv2d(ndf * 2, ndf * 4, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 4),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*4) x 8 x 8
-            nn.Conv2d(ndf * 4, ndf * 8, 4, 2, 1, bias=False),
-            nn.BatchNorm2d(ndf * 8),
-            nn.LeakyReLU(0.2, inplace=True),
-            # state size. (ndf*8) x 4 x 4
-            nn.Conv2d(ndf * 8, 1, 4, 1, 0, bias=False),
-            nn.Sigmoid()
-        )
-
-    def forward(self, input):
-        return self.main(input)
+    def __len__(self): 
+        return len(self.label)
     
-def plot_images(data_loader, real_batch, img_list, epoch=-1):
-    real_batch = next(iter(data_loader))
+    def _getname__(self, idx): 
+        return self.label[idx]
+    
+    def __getitem__(self, idx):
+        i = idx%8
+        idx = int(idx/8) 
+        
+        img_paths = self.imgs_files[8*idx:8*idx+8]
+        label = self.label[idx]
+        
+        imgs = []
+        # Read Image:
+        for j, img_path in enumerate(img_paths):
+            img = np.load(img_path)
+            
+            img = np.rollaxis(img, 2)
+            img = np.rollaxis(img, 2)
+        #     img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+            img = cv2.resize(img, (256, 256))
+            # print(img.shape)
+            img = np.rollaxis(img, 2)
+            imgs.append(img)
+        
+        arr = np.array(imgs)
+        images = torch.from_numpy(arr)
+        
+        # print(i)
+        return images[i], torch.from_numpy(arr.reshape((-1, 16, 256, 256)))
 
-    plt.figure(figsize=(15,15))
-    plt.subplot(1,2,1)
-    plt.axis("off")
-    plt.title("Real Images")
-    plt.imshow(np.transpose(vutils.make_grid(real_batch[0].to(device)[:64], padding=5, normalize=True).cpu(),(1,2,0)))
-
-    # Plot the fake images from the last epoch
-    plt.subplot(1,2,2)
-    plt.axis("off")
-    plt.title("Fake Images")
-    plt.imshow(np.transpose(img_list[epoch],(1,2,0)))
-    plt.show()
     
 def plot_loss(train_losses, val_losses):
     fig, ax = plt.subplots(3, 2, figsize=(10, 15))
@@ -233,7 +159,7 @@ class UNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         
         # ENCODER
-        self.conv00 = ConvBlock(1, 32)
+        self.conv00 = ConvBlock(2, 32)
         self.conv10 = ConvBlock(32, 64)
         self.conv20 = ConvBlock(64, 128)
         self.conv30 = ConvBlock(128, 256)
@@ -250,7 +176,7 @@ class UNet(nn.Module):
         self.conv04 = ConvBlock(2*32, 32)
         
         # final layers
-        self.final04 = nn.Conv2d(32, 8, 1)
+        self.final04 = nn.Conv2d(32, 16, 1)
         
     def forward(self, x):
         
@@ -285,7 +211,7 @@ class NLayerDiscriminator(nn.Module):
     Defines a PatchGAN discriminator
     """
 
-    def __init__(self, input_nc=8, ndf=64, n_layers=3):
+    def __init__(self, input_nc=18, ndf=64, n_layers=3):
         """Construct a PatchGAN discriminator
         Parameters:
             input_nc (int)  -- the number of channels in input images
@@ -335,7 +261,7 @@ class NLayerDiscriminator(nn.Module):
 
 
 def train(generator_model, discriminator_model, train_loader, val_loader,
-          device=None, Lambda=1, num_epochs=1, lr_g=0.00001, lr_d=0.00001,
+          device=None, Lambda=1, num_epochs=1, lr_g=0.0001, lr_d=0.0001,
           label_smoothing=0.1):
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu") if device is None else device
@@ -389,7 +315,7 @@ def train(generator_model, discriminator_model, train_loader, val_loader,
                 print(f'Batch = {batch_idx:04d}', end='\r')
 
                 input_img = input_img.float().to(device)
-                target_images = target_images.float().to(device)
+                target_images = target_images[:, 0, :, :, :].float().to(device)
                 fake_images = generator_model(input_img)
                 
                 # Join fake images with its opiginal input & Pass through discriminator
